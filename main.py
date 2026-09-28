@@ -20,8 +20,12 @@ class TaskSchema(BaseModel):
 class TaskCreateSchema(BaseModel):
     title: str
 
+class BookSchema(BaseModel):
+    book: str
+
 
 tasks: list[TaskSchema] = []
+book: str = ""
 
 @app.get("/tasks")
 def read_tasks() -> list[TaskSchema]:
@@ -33,3 +37,13 @@ def create_tasks(payload: TaskCreateSchema) -> TaskSchema:
 
     tasks.append(new_task)
     return new_task
+
+@app.post("/book")
+def create_book(payload: BookSchema) -> BookSchema:
+    global book
+    book = payload.book
+    return payload
+
+@app.get("/book")
+def read_book() -> str:
+    return f"Любимая книга: {book}"
