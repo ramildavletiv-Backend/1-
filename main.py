@@ -70,3 +70,24 @@ def delete_task(task_id):
     for task in tasks:
         if task.id == task_id:
             tasks.remove(task)
+
+
+
+class GetCategoriesSchema(BaseModel):
+    id: str
+    name: str
+
+class PostCategoriesSchema(BaseModel):
+    name: str
+
+categories: list[GetCategoriesSchema] = []
+
+@app.get("/categories",status_code=status.HTTP_200_OK)
+def read_categories() -> list[GetCategoriesSchema]:
+    return categories
+
+@app.post("categories", status_code=status.HTTP_201_CREATED)
+def create_categories(payload: PostCategoriesSchema) -> GetCategoriesSchema:
+    new_categories = GetCategoriesSchema(id=str (uuid4()), name=payload.name)
+    categories.append(new_categories)
+    return new_categories
