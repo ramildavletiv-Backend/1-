@@ -4,6 +4,7 @@ from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from fastapi import HTTPException
 app = FastAPI()
 
 app.add_middleware(
@@ -86,8 +87,25 @@ categories: list[GetCategoriesSchema] = []
 def read_categories() -> list[GetCategoriesSchema]:
     return categories
 
-@app.post("categories", status_code=status.HTTP_201_CREATED)
+@app.post("/categories", status_code=status.HTTP_201_CREATED)
 def create_categories(payload: PostCategoriesSchema) -> GetCategoriesSchema:
     new_categories = GetCategoriesSchema(id=str (uuid4()), name=payload.name)
     categories.append(new_categories)
     return new_categories
+
+@app.patch("/categories/{categories_id}", status_code=status.HTTP_200_OK)
+def update_categories(categories_id: str, payload: PostCategoriesSchema) -> GetCategoriesSchema:
+    for category in categories:
+        if category.id == categories_id:
+            if payload.name:
+                category.name = payload.name
+                return category
+    raise HTTPException(status_code=404, detail="Category not found")
+
+@app.delete("/categories/{categories_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_categories(categories_id: str):
+    for category in categories:
+        if category.id == categories_id:
+            categories.remove(category)
+            return
+    raise HTTPException(status_code=404, detail="Category not found")
